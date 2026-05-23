@@ -10,36 +10,20 @@
     video {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* oppure "contain" se vuoi le barre nere */
+      object-fit: cover;
     }
   </style>
 </head>
 <body>
-  <video autoplay muted loop playsinline>
-    <!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video Negozio</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000; width: 100vw; height: 100vh; overflow: hidden; }
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-  </style>
-</head>
-<body>
-  <iframe
-    src="https://drive.google.com/file/d/https://drive.google.com/file/d/18ynax2rbiM-oht_MJbfcm2eerj_Mm09B/view?usp=sharing/preview?autoplay=1&loop=1"
-    allow="autoplay; fullscreen"
-    allowfullscreen>
-  </iframe>
-</body>
-</html>
+  <video autoplay muted loop playsinline
+    onended="this.currentTime=0; this.play();">
+    <source src="video.mp4" type="video/mp4">
   </video>
+
+  <script>
+    const v = document.querySelector('video');
+    v.addEventListener('ended', () => { v.currentTime = 0; v.play(); });
+    v.addEventListener('pause', () => { v.play(); });
+  </script>
 </body>
 </html>
