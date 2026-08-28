@@ -1,0 +1,62 @@
+name: Genera manifest
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - manifest.json  # evita loop infiniti
+
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Genera manifest.json
+        run: |
+          node - <<'EOF'
+          const fs = require('fs');
+
+          const CLIP_RE  = /\.(mp4|webm|mov|avi|mkv)$/i;
+          const PROMO_RE = /\.(mp4|webm|mov|avi|mkv|jpe?g|png|gif|webp|bmp)$/i;
+
+          function listDir(dir, re) {
+            if (!fs.existsSync(dir)) return [];
+            return fs.readdirSync(dir)
+              .filter(f => !f.startsWith('.') && re.test(f))
+              .sort();
+          }
+
+          const clips = listDir('clip', CLIP_RE);
+          const promoFiles = listDir('promo', PROMO_RE);
+
+          const config = fs.existsSync('promo-config.json')
+            ? JSON.parse(fs.readFileSync('promo-config.json', 'utf8'))
+            : {};
+
+          const promos = promoFiles.map(f => ({
+            file: f,
+            config: config[f] || { modalita: 'interstiziale', ogni_n_cicli: 5 }
+          }));
+
+          const manifest = {
+            generated: new Date().toISOString(),
+            clips,
+            promos
+          };
+
+          fs.writeFileSync('manifest.json', JSON.stringify(manifest, null, 2) + '\n');
+          console.log('manifest.json generato');
+          console.log('  clip:', clips.length, '| promo:', promos.length);
+          EOF
+
+      - name: Commit manifest
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git diff --staged --quiet || git commit -m "chore: rigenera manifest.json [skip ci]"
+          git push

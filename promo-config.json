@@ -1,0 +1,13 @@
+{
+  "spot-natale.mp4": {
+    "modalita": "esclusiva",
+    "ogni_n_minuti": 20,
+    "dal": "2026-12-20",
+    "al": "2026-12-31"
+  },
+  "banner-saldi.jpg": {
+    "modalita": "interstiziale",
+    "ogni_n_cicli": 3,
+    "durata_immagine_secondi": 8
+  }
+}
