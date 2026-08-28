@@ -1,7 +1,16 @@
 {
-  "generated": "2026-08-28T07:39:26.161Z",
+  "generated": "2026-08-28T07:43:50.214Z",
   "clips": [
     "video.mp4"
   ],
-  "promos": []
+  "promos": [
+    {
+      "file": "promo_fidelity_card.png",
+      "config": {
+        "modalita": "interstiziale",
+        "ogni_n_cicli": 1,
+        "durata_immagine_secondi": 10
+      }
+    }
+  ]
 }
