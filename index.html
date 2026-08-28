@@ -174,7 +174,9 @@
     // ── Normal mode ────────────────────────────────────────────────────────
     function runNormal() {
       if (!clips.length) return;
-      playClip();
+      cycleCount = 1;
+      checkInterstiziali();
+      pendingInter.length ? playInterQueue() : playClip();
     }
 
     function checkInterstiziali() {
