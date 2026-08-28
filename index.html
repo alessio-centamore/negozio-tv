@@ -101,13 +101,15 @@
     }
 
     // ── Generic item player ────────────────────────────────────────────────
+    function bust(path) { return path + '?t=' + Date.now(); }
+
     function playItem(path, imageDurationSec, onEnd) {
       clearWatchdog();
       clearEndedHandler();
 
       if (isImage(path)) {
         vid.src = '';
-        img.src = path;
+        img.src = bust(path);
         showOnly(img);
         setTimeout(() => { showOnly(null); onEnd(); }, (imageDurationSec || 5) * 1000);
         return;
@@ -115,7 +117,7 @@
 
       // Video
       showOnly(vid);
-      vid.src = path;
+      vid.src = bust(path);
       vid.currentTime = 0;
 
       endedHandler = () => {
