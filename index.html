@@ -20,16 +20,14 @@
     #ticker-text {
       display:inline-block;
       white-space:nowrap;
-      padding-left:100vw;
-      animation:scroll-l 10s linear infinite;
     }
     @keyframes scroll-l {
-      from { transform: translateX(0); }
-      to   { transform: translateX(-200%); }
+      from { transform: translateX(100vw); }
+      to   { transform: translateX(-100%); }
     }
     @keyframes scroll-r {
-      from { transform: translateX(-200%); }
-      to   { transform: translateX(0); }
+      from { transform: translateX(-100%); }
+      to   { transform: translateX(100vw); }
     }
   </style>
 </head>
@@ -49,7 +47,6 @@
     let idx = 0;
     let refreshTimer = null;
 
-    // ── Config ──────────────────────────────────────────────────────────
     async function fetchConfig() {
       try {
         const r = await fetch('player-config.json?t=' + Date.now());
@@ -58,7 +55,6 @@
       return { videos: [], ticker: { enabled: false } };
     }
 
-    // ── Ticker ──────────────────────────────────────────────────────────
     function applyTicker(t) {
       if (!t || !t.enabled || !t.text) { ticker.style.display = 'none'; return; }
 
@@ -67,27 +63,29 @@
       ticker.style.background = t.background_color || 'rgba(0,0,0,0.6)';
 
       if (t.position === 'top') {
-        ticker.style.top  = Math.max(0, t.offset_y || 0) + 'px';
+        ticker.style.top    = Math.max(0, t.offset_y || 0) + 'px';
         ticker.style.bottom = 'auto';
       } else {
         ticker.style.bottom = Math.max(0, t.offset_y || 0) + 'px';
-        ticker.style.top = 'auto';
+        ticker.style.top    = 'auto';
       }
 
-      ttext.textContent = t.text;
+      ttext.textContent       = t.text;
       ttext.style.fontFamily  = t.font  || 'Inter, system-ui, sans-serif';
       ttext.style.fontSize    = (t.size || 28) + 'px';
       ttext.style.fontWeight  = t.bold   ? '700' : '400';
       ttext.style.fontStyle   = t.italic ? 'italic' : 'normal';
       ttext.style.color       = t.color  || '#ffffff';
 
-      const speed = Math.max(1, t.speed || 80);
-      const dur   = Math.max(3, Math.round(600 / speed));
-      ttext.style.animationDuration  = dur + 's';
-      ttext.style.animationName = (t.direction === 'right') ? 'scroll-r' : 'scroll-l';
+      const speed   = Math.max(1, t.speed || 80);
+      const dur     = Math.max(3, Math.round(600 / speed));
+      const animName = (t.direction === 'right') ? 'scroll-r' : 'scroll-l';
+
+      ttext.style.animation = 'none';
+      void ttext.offsetWidth;
+      ttext.style.animation = dur + 's linear infinite ' + animName;
     }
 
-    // ── Playlist ────────────────────────────────────────────────────────
     function buildPlaylist(videos) {
       playlist = (videos || []).map(v => v.filename).filter(Boolean);
     }
@@ -96,7 +94,6 @@
       if (!playlist.length) { setTimeout(init, 10000); return; }
       const file = playlist[idx % playlist.length];
       idx = (idx + 1) % playlist.length;
-
       vid.src = 'videos/' + encodeURIComponent(file) + '?t=' + Date.now();
       vid.load();
       vid.play().catch(() => {
@@ -107,7 +104,6 @@
     vid.addEventListener('ended', playNext);
     vid.addEventListener('error', () => setTimeout(playNext, 2000));
 
-    // ── Watchdog ────────────────────────────────────────────────────────
     let lastT = -1, stuckN = 0;
     setInterval(() => {
       if (!vid.src) return;
@@ -118,7 +114,6 @@
       lastT = vid.currentTime;
     }, 3000);
 
-    // ── Periodic refresh ────────────────────────────────────────────────
     function scheduleRefresh() {
       clearTimeout(refreshTimer);
       refreshTimer = setTimeout(async () => {
@@ -131,7 +126,6 @@
       }, 5 * 60 * 1000);
     }
 
-    // ── Init ────────────────────────────────────────────────────────────
     async function init() {
       const cfg = await fetchConfig();
       applyTicker(cfg.ticker);
