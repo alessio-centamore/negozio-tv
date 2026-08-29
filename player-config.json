@@ -14,10 +14,10 @@
     "bold": true,
     "italic": false,
     "color": "#fa0000",
-    "background_color": "rgba(0,0,0,0.00)",
-    "speed": 62,
+    "background_color": "rgba(255,255,255,0.17)",
+    "speed": 27,
     "direction": "left",
     "position": "bottom",
-    "offset_y": 100
+    "offset_y": 20
   }
 }
