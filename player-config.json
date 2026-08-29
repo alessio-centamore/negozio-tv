@@ -14,13 +14,13 @@
   "ticker": {
     "enabled": true,
     "text": "Benvenuti, chiedete la card alla cassa per ottenere fantastici vantaggi",
-    "font": "Inter, system-ui, sans-serif",
-    "size": 28,
-    "bold": false,
+    "font": "'Courier New', monospace",
+    "size": 50,
+    "bold": true,
     "italic": false,
-    "color": "#ffffff",
+    "color": "#fa0000",
     "background_color": "rgba(0,0,0,0.00)",
-    "speed": 80,
+    "speed": 62,
     "direction": "left",
     "position": "bottom",
     "offset_y": 0
