@@ -7,7 +7,7 @@
     }
   ],
   "ticker": {
-    "enabled": false,
+    "enabled": true,
     "text": "Benvenuti, chiedete la card alla cassa per ottenere fantastici vantaggi",
     "font": "Inter, system-ui, sans-serif",
     "size": 28,
