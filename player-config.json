@@ -1,5 +1,11 @@
 {
-  "videos": [],
+  "videos": [
+    {
+      "filename": "fidelity_20260829_104118.mp4",
+      "title": "fidelity",
+      "uploaded_at": "2026-08-29T10:52:04"
+    }
+  ],
   "ticker": {
     "enabled": true,
     "text": "Benvenuti, chiedete la card alla cassa per ottenere fantastici vantaggi",
