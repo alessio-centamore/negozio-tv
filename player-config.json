@@ -1,11 +1,5 @@
 {
-  "videos": [
-    {
-      "filename": "video_20260829_142234.mp4",
-      "title": "video_20260829_142234.mp4",
-      "uploaded_at": "2026-08-29T14:29:30"
-    }
-  ],
+  "videos": [],
   "ticker": {
     "enabled": true,
     "text": "Benvenuti, chiedete la card alla cassa per ottenere fantastici vantaggi",
