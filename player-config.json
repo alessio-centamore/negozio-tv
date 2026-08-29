@@ -18,6 +18,6 @@
     "speed": 62,
     "direction": "left",
     "position": "bottom",
-    "offset_y": 0
+    "offset_y": 100
   }
 }
