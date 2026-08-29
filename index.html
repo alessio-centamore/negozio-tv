@@ -12,18 +12,31 @@
     #vid {
       position:fixed; inset:0; width:100%; height:100%;
       object-fit:cover; display:block;
+      /* Disabilita hardware video overlay su TV browser — permette z-index sopra al video */
+      -webkit-filter: brightness(1);
+      filter: brightness(1);
     }
     #ticker {
-      position:fixed; left:0; right:0; z-index:10;
+      position:fixed; left:0; right:0; z-index:100;
       overflow:hidden; display:none;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
     }
     #ticker-text {
       display:inline-block;
       white-space:nowrap;
     }
+    @-webkit-keyframes scroll-l {
+      from { -webkit-transform: translateX(100vw); transform: translateX(100vw); }
+      to   { -webkit-transform: translateX(-100%); transform: translateX(-100%); }
+    }
     @keyframes scroll-l {
       from { transform: translateX(100vw); }
       to   { transform: translateX(-100%); }
+    }
+    @-webkit-keyframes scroll-r {
+      from { -webkit-transform: translateX(-100%); transform: translateX(-100%); }
+      to   { -webkit-transform: translateX(100vw); transform: translateX(100vw); }
     }
     @keyframes scroll-r {
       from { transform: translateX(-100%); }
@@ -81,9 +94,12 @@
       const dur     = Math.max(3, Math.round(600 / speed));
       const animName = (t.direction === 'right') ? 'scroll-r' : 'scroll-l';
 
+      const animStr = dur + 's linear infinite ' + animName;
+      ttext.style.webkitAnimation = 'none';
       ttext.style.animation = 'none';
       void ttext.offsetWidth;
-      ttext.style.animation = dur + 's linear infinite ' + animName;
+      ttext.style.webkitAnimation = animStr;
+      ttext.style.animation = animStr;
     }
 
     function buildPlaylist(videos) {
