@@ -3,230 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Video Negozio</title>
+  <title>Negozio TV</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #000; width: 100vw; height: 100vh; overflow: hidden; }
-    #vid, #img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      position: absolute; top: 0; left: 0;
-      display: none;
+    *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+    html,body { width:100vw; height:100vh; background:#000; overflow:hidden; }
+    #vid {
+      position:fixed; inset:0; width:100%; height:100%;
+      object-fit:cover; display:block;
     }
-    #vid.active, #img.active { display: block; }
+    #ticker {
+      position:fixed; left:0; right:0; z-index:10;
+      overflow:hidden; display:none;
+    }
+    #ticker-text {
+      display:inline-block;
+      white-space:nowrap;
+      padding-left:100vw;
+      animation:scroll-l 10s linear infinite;
+    }
+    @keyframes scroll-l {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-200%); }
+    }
+    @keyframes scroll-r {
+      from { transform: translateX(-200%); }
+      to   { transform: translateX(0); }
+    }
   </style>
 </head>
 <body>
   <video id="vid" autoplay muted playsinline></video>
-  <img id="img" />
+  <div id="ticker"><span id="ticker-text"></span></div>
+
   <script>
   (function () {
     'use strict';
 
-    const vid = document.getElementById('vid');
-    const img = document.getElementById('img');
+    const vid   = document.getElementById('vid');
+    const ticker = document.getElementById('ticker');
+    const ttext  = document.getElementById('ticker-text');
 
-    // ── State ──────────────────────────────────────────────────────────────
-    let clips = [];
-    let promos = [];
-    let clipIdx = 0;
-    let cycleCount = 0;
-    let mode = 'normal';       // 'normal' | 'exclusive'
-    let exclusivePromos = [];
-    let exclusiveIdx = 0;
-    let pendingInter = [];     // interstiziali queued for between-cycle playback
-    let watchdogTimer = null;
-    let endedHandler = null;
+    let playlist = [];
+    let idx = 0;
+    let refreshTimer = null;
 
-    // ── Utilities ──────────────────────────────────────────────────────────
-    const IMAGE_RE = /\.(jpe?g|png|gif|webp|bmp|svg)$/i;
-    function isImage(f) { return IMAGE_RE.test(f); }
-
-    function todayISO() { return new Date().toISOString().slice(0, 10); }
-
-    function showOnly(el) {
-      vid.classList.remove('active');
-      img.classList.remove('active');
-      if (el) el.classList.add('active');
-    }
-
-    function clearWatchdog() {
-      if (watchdogTimer) { clearInterval(watchdogTimer); watchdogTimer = null; }
-    }
-
-    function clearEndedHandler() {
-      if (endedHandler) { vid.removeEventListener('ended', endedHandler); endedHandler = null; }
-    }
-
-    // ── Manifest loading ───────────────────────────────────────────────────
-    async function loadManifest() {
+    // ── Config ──────────────────────────────────────────────────────────
+    async function fetchConfig() {
       try {
-        const r = await fetch('manifest.json?t=' + Date.now());
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        return r.json();
-      } catch (e) {
-        console.warn('[negozio-tv] manifest non disponibile, riprovo tra 10s', e);
-        await new Promise(res => setTimeout(res, 10000));
-        return loadManifest();
-      }
+        const r = await fetch('player-config.json?t=' + Date.now());
+        if (r.ok) return r.json();
+      } catch (_) {}
+      return { videos: [], ticker: { enabled: false } };
     }
 
-    // ── Mode evaluation ────────────────────────────────────────────────────
-    function evaluateMode() {
-      const t = todayISO();
-      exclusivePromos = promos.filter(p => {
-        const c = p.config;
-        return c.modalita === 'esclusiva' && c.dal <= t && t <= c.al;
-      });
-      mode = exclusivePromos.length > 0 ? 'exclusive' : 'normal';
-    }
+    // ── Ticker ──────────────────────────────────────────────────────────
+    function applyTicker(t) {
+      if (!t || !t.enabled || !t.text) { ticker.style.display = 'none'; return; }
 
-    function scheduleMidnightReset() {
-      const now = new Date();
-      const midnight = new Date(now);
-      midnight.setDate(now.getDate() + 1);
-      midnight.setHours(0, 0, 10, 0); // 10s dopo mezzanotte
-      setTimeout(() => {
-        evaluateMode();
-        exclusiveIdx = 0;
-        clipIdx = 0;
-        cycleCount = 0;
-        pendingInter = [];
-        clearWatchdog();
-        clearEndedHandler();
-        showOnly(null);
-        mode === 'exclusive' ? runExclusive() : runNormal();
-        scheduleMidnightReset();
-      }, midnight - now);
-    }
+      ticker.style.display = 'block';
+      ticker.style.padding = '10px 0';
+      ticker.style.background = t.background_color || 'rgba(0,0,0,0.6)';
 
-    // ── Generic item player ────────────────────────────────────────────────
-    function bust(path) { return path + '?t=' + Date.now(); }
-
-    function playItem(path, imageDurationSec, onEnd) {
-      clearWatchdog();
-      clearEndedHandler();
-
-      if (isImage(path)) {
-        vid.src = '';
-        img.src = bust(path);
-        showOnly(img);
-        setTimeout(() => { showOnly(null); onEnd(); }, (imageDurationSec || 5) * 1000);
-        return;
+      if (t.position === 'top') {
+        ticker.style.top  = Math.max(0, t.offset_y || 0) + 'px';
+        ticker.style.bottom = 'auto';
+      } else {
+        ticker.style.bottom = Math.max(0, t.offset_y || 0) + 'px';
+        ticker.style.top = 'auto';
       }
 
-      // Video
-      showOnly(vid);
-      vid.src = bust(path);
-      vid.currentTime = 0;
+      ttext.textContent = t.text;
+      ttext.style.fontFamily  = t.font  || 'Inter, system-ui, sans-serif';
+      ttext.style.fontSize    = (t.size || 28) + 'px';
+      ttext.style.fontWeight  = t.bold   ? '700' : '400';
+      ttext.style.fontStyle   = t.italic ? 'italic' : 'normal';
+      ttext.style.color       = t.color  || '#ffffff';
 
-      endedHandler = () => {
-        clearEndedHandler();
-        clearWatchdog();
-        showOnly(null);
-        onEnd();
-      };
-      vid.addEventListener('ended', endedHandler);
+      const speed = Math.max(1, t.speed || 80);
+      const dur   = Math.max(3, Math.round(600 / speed));
+      ttext.style.animationDuration  = dur + 's';
+      ttext.style.animationName = (t.direction === 'right') ? 'scroll-r' : 'scroll-l';
+    }
 
-      // Watchdog: rileva pausa inattesa o video bloccato
-      let lastTime = -1;
-      let stuckTicks = 0;
-      watchdogTimer = setInterval(() => {
-        if (vid.paused && !vid.ended) {
-          vid.play().catch(() => {});
-          stuckTicks = 0;
-        } else if (!vid.paused && !vid.ended && vid.currentTime === lastTime) {
-          if (++stuckTicks >= 3) { // 9s bloccato → forza avanzamento
-            clearWatchdog();
-            clearEndedHandler();
-            showOnly(null);
-            onEnd();
-          }
-        } else {
-          stuckTicks = 0;
-        }
-        lastTime = vid.currentTime;
-      }, 3000);
+    // ── Playlist ────────────────────────────────────────────────────────
+    function buildPlaylist(videos) {
+      playlist = (videos || []).map(v => v.filename).filter(Boolean);
+    }
 
+    function playNext() {
+      if (!playlist.length) { setTimeout(init, 10000); return; }
+      const file = playlist[idx % playlist.length];
+      idx = (idx + 1) % playlist.length;
+
+      vid.src = 'videos/' + encodeURIComponent(file) + '?t=' + Date.now();
+      vid.load();
       vid.play().catch(() => {
-        // Autoplay bloccato: riprova al primo clic
         document.addEventListener('click', () => vid.play(), { once: true });
       });
     }
 
-    // ── Exclusive mode ─────────────────────────────────────────────────────
-    function runExclusive() {
-      if (!exclusivePromos.length) { runNormal(); return; }
-      playExclusiveSlot();
+    vid.addEventListener('ended', playNext);
+    vid.addEventListener('error', () => setTimeout(playNext, 2000));
+
+    // ── Watchdog ────────────────────────────────────────────────────────
+    let lastT = -1, stuckN = 0;
+    setInterval(() => {
+      if (!vid.src) return;
+      if (vid.paused && !vid.ended) { vid.play().catch(() => {}); stuckN = 0; return; }
+      if (!vid.paused && vid.currentTime === lastT) {
+        if (++stuckN >= 3) { stuckN = 0; playNext(); }
+      } else { stuckN = 0; }
+      lastT = vid.currentTime;
+    }, 3000);
+
+    // ── Periodic refresh ────────────────────────────────────────────────
+    function scheduleRefresh() {
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(async () => {
+        const cfg = await fetchConfig();
+        applyTicker(cfg.ticker);
+        const wasEmpty = playlist.length === 0;
+        buildPlaylist(cfg.videos);
+        if (wasEmpty && playlist.length > 0) playNext();
+        scheduleRefresh();
+      }, 5 * 60 * 1000);
     }
 
-    function playExclusiveSlot() {
-      const p = exclusivePromos[exclusiveIdx % exclusivePromos.length];
-      exclusiveIdx++;
-      const intervalMs = (p.config.ogni_n_minuti || 15) * 60 * 1000;
-      const t0 = Date.now();
-
-      playItem('promo/' + p.file, p.config.durata_immagine_secondi, () => {
-        const remaining = Math.max(0, intervalMs - (Date.now() - t0));
-        // Schermo nero fino al prossimo intervallo
-        setTimeout(playExclusiveSlot, remaining);
-      });
-    }
-
-    // ── Normal mode ────────────────────────────────────────────────────────
-    function runNormal() {
-      if (!clips.length) return;
-      cycleCount = 1;
-      checkInterstiziali();
-      pendingInter.length ? playInterQueue() : playClip();
-    }
-
-    function checkInterstiziali() {
-      const due = promos.filter(p => {
-        if (p.config.modalita !== 'interstiziale') return false;
-        const n = p.config.ogni_n_cicli || 5;
-        return cycleCount > 0 && cycleCount % n === 0;
-      });
-
-      if (!due.length) return;
-
-      // Ruota l'ordine di inserimento ad ogni ciclo per "alternare"
-      const offset = cycleCount % due.length;
-      const ordered = [...due.slice(offset), ...due.slice(0, offset)];
-      ordered.forEach(p => {
-        if (!pendingInter.find(x => x.file === p.file)) pendingInter.push(p);
-      });
-    }
-
-    function playClip() {
-      const file = clips[clipIdx];
-      clipIdx++;
-      if (clipIdx >= clips.length) {
-        clipIdx = 0;
-        cycleCount++;
-        checkInterstiziali();
-      }
-      playItem('clip/' + file, null, afterClip);
-    }
-
-    function afterClip() {
-      pendingInter.length ? playInterQueue() : playClip();
-    }
-
-    function playInterQueue() {
-      if (!pendingInter.length) { playClip(); return; }
-      const p = pendingInter.shift();
-      playItem('promo/' + p.file, p.config.durata_immagine_secondi, playInterQueue);
-    }
-
-    // ── Entry point ────────────────────────────────────────────────────────
+    // ── Init ────────────────────────────────────────────────────────────
     async function init() {
-      const manifest = await loadManifest();
-      clips  = manifest.clips  || [];
-      promos = manifest.promos || [];
-      evaluateMode();
-      scheduleMidnightReset();
-      mode === 'exclusive' ? runExclusive() : runNormal();
+      const cfg = await fetchConfig();
+      applyTicker(cfg.ticker);
+      buildPlaylist(cfg.videos);
+      playNext();
+      scheduleRefresh();
     }
 
     init();
