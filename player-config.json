@@ -2,14 +2,14 @@
   "videos": [],
   "ticker": {
     "enabled": true,
-    "text": "Benvenuti, chiedete la card alla cassa per ottenere fantastici vantaggi",
-    "font": "'Courier New', monospace",
+    "text": "Benvenuti, chiedete la Fidelity card alla cassa per ottenere fantastici vantaggi",
+    "font": "Inter, system-ui, sans-serif",
     "size": 50,
     "bold": true,
     "italic": false,
-    "color": "#fa0000",
+    "color": "#ff00f7",
     "background_color": "rgba(255,255,255,0.17)",
-    "speed": 27,
+    "speed": 34,
     "direction": "left",
     "position": "bottom",
     "offset_y": 20
