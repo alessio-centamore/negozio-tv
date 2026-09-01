@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Negozio TV</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Oswald:wght@400;700&family=Bebas+Neue&family=Pacifico&family=Lobster&family=Montserrat:wght@400;700&family=Playfair+Display:wght@400;700ital,wght@1,400;1,700&family=Raleway:wght@400;700&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
     html,body { width:100vw; height:100vh; background:#000; overflow:hidden; }
@@ -84,11 +84,14 @@
       }
 
       ttext.textContent       = t.text;
-      ttext.style.fontFamily  = t.font  || 'Inter, system-ui, sans-serif';
-      ttext.style.fontSize    = (t.size || 28) + 'px';
-      ttext.style.fontWeight  = t.bold   ? '700' : '400';
-      ttext.style.fontStyle   = t.italic ? 'italic' : 'normal';
-      ttext.style.color       = t.color  || '#ffffff';
+      ttext.style.fontFamily       = t.font  || 'Inter, system-ui, sans-serif';
+      ttext.style.fontSize         = (t.size || 28) + 'px';
+      ttext.style.fontWeight       = t.bold   ? '700' : '400';
+      ttext.style.fontStyle        = t.italic ? 'italic' : 'normal';
+      ttext.style.color            = t.color  || '#ffffff';
+      const stroke = (t.stroke_width || 0) > 0 ? t.stroke_width + 'px ' + (t.stroke_color || '#000000') : '';
+      ttext.style.webkitTextStroke = stroke;
+      ttext.style.textStroke       = stroke;
 
       const speed   = Math.max(1, t.speed || 80);
       const dur     = Math.max(3, Math.round(600 / speed));
