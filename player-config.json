@@ -13,11 +13,13 @@
     "size": 50,
     "bold": true,
     "italic": false,
-    "color": "#ff00ae",
+    "color": "#ffffff",
     "background_color": "rgba(255,255,255,0.17)",
     "speed": 30,
     "direction": "left",
     "position": "bottom",
-    "offset_y": 20
+    "offset_y": 20,
+    "stroke_color": "#000000",
+    "stroke_width": 6
   }
 }
