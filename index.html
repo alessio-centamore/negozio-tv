@@ -141,7 +141,7 @@
         buildPlaylist(cfg.videos);
         if (wasEmpty && playlist.length > 0) playNext();
         scheduleRefresh();
-      }, 5 * 60 * 1000);
+      }, 20 * 1000);
     }
 
     async function init() {
