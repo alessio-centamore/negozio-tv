@@ -68,6 +68,16 @@
       return { videos: [], ticker: { enabled: false } };
     }
 
+    function makeOutline(px, color) {
+      if (!px || px <= 0) return '';
+      const s = [];
+      for (let x = -px; x <= px; x++)
+        for (let y = -px; y <= px; y++)
+          if ((x !== 0 || y !== 0) && x * x + y * y <= px * px)
+            s.push(x + 'px ' + y + 'px 0 ' + color);
+      return s.join(',');
+    }
+
     function applyTicker(t) {
       if (!t || !t.enabled || !t.text) { ticker.style.display = 'none'; return; }
 
@@ -83,15 +93,13 @@
         ticker.style.top    = 'auto';
       }
 
-      ttext.textContent       = t.text;
+      ttext.textContent            = t.text;
       ttext.style.fontFamily       = t.font  || 'Inter, system-ui, sans-serif';
       ttext.style.fontSize         = (t.size || 28) + 'px';
       ttext.style.fontWeight       = t.bold   ? '700' : '400';
       ttext.style.fontStyle        = t.italic ? 'italic' : 'normal';
       ttext.style.color            = t.color  || '#ffffff';
-      const stroke = (t.stroke_width || 0) > 0 ? t.stroke_width + 'px ' + (t.stroke_color || '#000000') : '';
-      ttext.style.webkitTextStroke = stroke;
-      ttext.style.textStroke       = stroke;
+      ttext.style.textShadow       = makeOutline(t.stroke_width || 0, t.stroke_color || '#000000');
 
       const speed   = Math.max(1, t.speed || 80);
       const dur     = Math.max(3, Math.round(600 / speed));
