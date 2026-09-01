@@ -8,14 +8,14 @@
   ],
   "ticker": {
     "enabled": true,
-    "text": "Benvenuti! Richiedete la Fidelity card alla cassa per ottenere fantastici vantaggi",
+    "text": "Benvenuti   da The Vaping Company  !   Richiedete   la   Fidelity   card   alla   cassa   per   ottenere   fantastici   vantaggi",
     "font": "Inter, system-ui, sans-serif",
     "size": 50,
     "bold": true,
     "italic": false,
-    "color": "#009dff",
+    "color": "#ff00ae",
     "background_color": "rgba(255,255,255,0.17)",
-    "speed": 34,
+    "speed": 30,
     "direction": "left",
     "position": "bottom",
     "offset_y": 20
