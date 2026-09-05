@@ -154,9 +154,8 @@
                  'lineargradient','radialgradient','pattern','mask','filter'].includes(tag)) return;
             el.setAttribute('fill', color);
             if (sWidth > 0) {
-              el.setAttribute('stroke',        sColor);
-              el.setAttribute('stroke-width',  sWidth + 'px');
-              el.setAttribute('paint-order',   'stroke fill');
+              el.setAttribute('stroke',       sColor);
+              el.setAttribute('stroke-width', sWidth + 'px');
             } else {
               el.removeAttribute('stroke');
               el.removeAttribute('stroke-width');
