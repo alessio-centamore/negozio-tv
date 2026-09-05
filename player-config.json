@@ -22,7 +22,7 @@
     "background_color": "rgba(255,255,255,0.17)",
     "speed": 18,
     "direction": "left",
-    "position": "top",
+    "position": "bottom",
     "offset_y": 20,
     "stroke_color": "#070070",
     "stroke_width": 4
