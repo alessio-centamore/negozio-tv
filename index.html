@@ -132,13 +132,36 @@
         .then(r => r.ok ? r.text() : null)
         .then(text => {
           if (!text) return;
-          // Strip XML prolog/DOCTYPE — not valid as innerHTML
           const clean = text
             .replace(/<\?xml[^?]*\?>/i, '')
             .replace(/<!DOCTYPE[^>]*>/i, '');
           logoWrap.innerHTML = clean;
           const svg = logoWrap.querySelector('svg');
-          if (svg) { svg.style.display = 'block'; svg.style.width = '100%'; svg.style.height = 'auto'; }
+          if (!svg) return;
+          svg.style.display = 'block';
+          svg.style.width   = '100%';
+          svg.style.height  = 'auto';
+          // Apply fill + stroke directly as attributes — bypasses CSS cascade issues
+          const color   = l.color        || '#ffffff';
+          const sColor  = l.stroke_color || '#000000';
+          const sWidth  = l.stroke_width || 0;
+          svg.querySelectorAll('*').forEach(el => {
+            // Skip artboard/transparent elements
+            if (el.getAttribute('fill') === 'none') return;
+            if (/fill\s*:\s*none/i.test(el.getAttribute('style') || '')) return;
+            const tag = (el.tagName || '').toLowerCase().replace(/.*:/, '');
+            if (['defs','style','title','desc','metadata','clippath',
+                 'lineargradient','radialgradient','pattern','mask','filter'].includes(tag)) return;
+            el.setAttribute('fill', color);
+            if (sWidth > 0) {
+              el.setAttribute('stroke',        sColor);
+              el.setAttribute('stroke-width',  sWidth + 'px');
+              el.setAttribute('paint-order',   'stroke fill');
+            } else {
+              el.removeAttribute('stroke');
+              el.removeAttribute('stroke-width');
+            }
+          });
         })
         .catch(() => {});
     }
