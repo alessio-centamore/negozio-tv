@@ -26,6 +26,14 @@
       display:inline-block;
       white-space:nowrap;
     }
+    #logo-wrap {
+      position:fixed; z-index:99; display:none; pointer-events:none;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+    }
+    #logo-wrap img {
+      display:block; width:100%; height:auto;
+    }
     @-webkit-keyframes scroll-l {
       from { -webkit-transform: translateX(100vw); transform: translateX(100vw); }
       to   { -webkit-transform: translateX(calc(-100% - 100vw)); transform: translateX(calc(-100% - 100vw)); }
@@ -47,14 +55,17 @@
 <body>
   <video id="vid" autoplay muted playsinline></video>
   <div id="ticker"><span id="ticker-text"></span></div>
+  <div id="logo-wrap"><img id="logo-img" src="" alt=""></div>
 
   <script>
   (function () {
     'use strict';
 
-    const vid   = document.getElementById('vid');
-    const ticker = document.getElementById('ticker');
-    const ttext  = document.getElementById('ticker-text');
+    const vid      = document.getElementById('vid');
+    const ticker   = document.getElementById('ticker');
+    const ttext    = document.getElementById('ticker-text');
+    const logoWrap = document.getElementById('logo-wrap');
+    const logoImg  = document.getElementById('logo-img');
 
     let playlist = [];
     let idx = 0;
@@ -76,6 +87,33 @@
           if ((x !== 0 || y !== 0) && x * x + y * y <= px * px)
             s.push(x + 'px ' + y + 'px 0 ' + color);
       return s.join(',');
+    }
+
+    function applyLogo(l) {
+      if (!l || !l.enabled || !l.url) { logoWrap.style.display = 'none'; return; }
+
+      logoWrap.style.display = 'block';
+      logoWrap.style.width   = (l.size || 80) + 'px';
+      logoWrap.style.opacity = l.opacity !== undefined ? l.opacity : 1;
+      logoWrap.style.background  = l.bg_color || 'rgba(0,0,0,0)';
+      logoWrap.style.borderRadius = l.bg_color && l.bg_color !== 'rgba(0,0,0,0)' ? '6px' : '0';
+      logoWrap.style.padding      = l.bg_color && l.bg_color !== 'rgba(0,0,0,0)' ? '6px' : '0';
+
+      const ox = (l.offset_x || 20) + 'px';
+      const oy = (l.offset_y || 20) + 'px';
+      logoWrap.style.top    = logoWrap.style.bottom = 'auto';
+      logoWrap.style.left   = logoWrap.style.right  = 'auto';
+
+      const pos = l.position || 'bottom-right';
+      if (pos.includes('top'))    logoWrap.style.top    = oy;
+      else                        logoWrap.style.bottom = oy;
+      if (pos.includes('left'))   logoWrap.style.left   = ox;
+      else                        logoWrap.style.right  = ox;
+
+      if (logoImg.dataset.src !== l.url) {
+        logoImg.src          = l.url + '?t=' + Math.floor(Date.now() / 60000);
+        logoImg.dataset.src  = l.url;
+      }
     }
 
     function applyTicker(t) {
@@ -148,6 +186,7 @@
       refreshTimer = setTimeout(async () => {
         const cfg = await fetchConfig();
         applyTicker(cfg.ticker);
+        applyLogo(cfg.logo);
         const wasEmpty = playlist.length === 0;
         buildPlaylist(cfg.videos);
         if (wasEmpty && playlist.length > 0) playNext();
@@ -158,6 +197,7 @@
     async function init() {
       const cfg = await fetchConfig();
       applyTicker(cfg.ticker);
+      applyLogo(cfg.logo);
       buildPlaylist(cfg.videos);
       playNext();
       scheduleRefresh();
