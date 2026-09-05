@@ -110,10 +110,8 @@
       if (pos.includes('left'))   logoWrap.style.left   = ox;
       else                        logoWrap.style.right  = ox;
 
-      if (logoImg.dataset.src !== l.url) {
-        logoImg.src         = l.url + '?t=' + Math.floor(Date.now() / 60000);
-        logoImg.dataset.src = l.url;
-      }
+      // Always update src — cache-buster changes every minute, browser cache handles dedup
+      logoImg.src = l.url + '?t=' + Math.floor(Date.now() / 60000);
     }
 
     function applyTicker(t) {
