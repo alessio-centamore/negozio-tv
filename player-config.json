@@ -30,7 +30,7 @@
   "logo": {
     "enabled": true,
     "url": "logos/logoTVC.svg",
-    "position": "top-right",
+    "position": "bottom-right",
     "size": 100,
     "offset_x": 26,
     "offset_y": 35,
