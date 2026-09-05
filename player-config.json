@@ -26,5 +26,16 @@
     "offset_y": 20,
     "stroke_color": "#000000",
     "stroke_width": 6
+  },
+  "logo": {
+    "enabled": true,
+    "url": "logos/logoTVC.svg",
+    "position": "top-right",
+    "size": 184,
+    "offset_x": 20,
+    "offset_y": 20,
+    "opacity": 1,
+    "color": "#ffffff",
+    "bg_color": "rgba(0,0,0,0.00)"
   }
 }
