@@ -33,9 +33,11 @@
     "position": "top-right",
     "size": 100,
     "offset_x": 20,
-    "offset_y": 20,
-    "opacity": 0.7,
+    "offset_y": 41,
+    "opacity": 0.4,
     "color": "#ffffff",
+    "stroke_color": "#000000",
+    "stroke_width": 20,
     "bg_color": "rgba(0,0,0,0.00)"
   }
 }
