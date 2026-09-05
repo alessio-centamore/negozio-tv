@@ -31,11 +31,11 @@
     "enabled": true,
     "url": "logos/logoTVC.svg",
     "position": "top-right",
-    "size": 184,
+    "size": 100,
     "offset_x": 20,
     "offset_y": 20,
-    "opacity": 1,
-    "color": "#11ff00",
+    "opacity": 0.7,
+    "color": "#ffffff",
     "bg_color": "rgba(0,0,0,0.00)"
   }
 }
