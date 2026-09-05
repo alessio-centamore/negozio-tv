@@ -12,24 +12,34 @@
     #vid {
       position:fixed; inset:0; width:100%; height:100%;
       object-fit:cover; display:block;
-      /* Disabilita hardware video overlay su TV browser — permette z-index sopra al video */
+      /* Force compositing to disable hardware video overlay on TV browsers */
       -webkit-filter: brightness(1);
       filter: brightness(1);
-    }
-    #ticker {
-      position:fixed; left:0; right:0; z-index:100;
-      overflow:hidden; display:none;
       -webkit-transform: translateZ(0);
       transform: translateZ(0);
+      will-change: transform;
+      /* opacity slightly < 1 forces GPU compositing on some Android TV browsers */
+      opacity: 0.9999;
+      z-index: 0;
+    }
+    /* Overlay container sits above the video compositing layer */
+    #overlay {
+      position:fixed; inset:0; z-index:10;
+      pointer-events:none;
+      -webkit-transform: translateZ(0);
+      transform: translateZ(0);
+      will-change: transform;
+    }
+    #ticker {
+      position:absolute; left:0; right:0;
+      overflow:hidden; display:none;
     }
     #ticker-text {
       display:inline-block;
       white-space:nowrap;
     }
     #logo-wrap {
-      position:fixed; z-index:99; display:none; pointer-events:none;
-      -webkit-transform: translateZ(0);
-      transform: translateZ(0);
+      position:absolute; display:none; pointer-events:none;
     }
     #logo-wrap img {
       display:block; width:100%; height:auto;
@@ -54,8 +64,10 @@
 </head>
 <body>
   <video id="vid" autoplay muted playsinline></video>
-  <div id="ticker"><span id="ticker-text"></span></div>
-  <div id="logo-wrap"><img id="logo-img" src="" alt=""></div>
+  <div id="overlay">
+    <div id="ticker"><span id="ticker-text"></span></div>
+    <div id="logo-wrap"><img id="logo-img" src="" alt=""></div>
+  </div>
 
   <script>
   (function () {
