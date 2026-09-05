@@ -30,10 +30,10 @@
   "logo": {
     "enabled": true,
     "url": "logos/logoTVC.svg",
-    "position": "bottom-right",
+    "position": "bottom-left",
     "size": 100,
-    "offset_x": 112,
-    "offset_y": 124,
+    "offset_x": 60,
+    "offset_y": 70,
     "opacity": 0.72,
     "color": "#ffffff",
     "stroke_color": "#000000",
