@@ -201,7 +201,7 @@
     }
 
     function buildPlaylist(videos) {
-      playlist = (videos || []).map(v => v.filename).filter(Boolean);
+      playlist = (videos || []).map(v => v.url || v.filename).filter(Boolean);
     }
 
     function playNext() {
@@ -210,7 +210,8 @@
       idx = (idx + 1) % playlist.length;
       // Single-video playlist: native loop avoids re-download and black screen
       vid.loop = playlist.length === 1;
-      vid.src = 'videos/' + encodeURIComponent(file) + '?t=' + Date.now();
+      const src = file.startsWith('http') ? file : 'videos/' + encodeURIComponent(file);
+      vid.src = src + '?t=' + Date.now();
       vid.load();
       vid.play().catch(() => {
         document.addEventListener('click', () => vid.play(), { once: true });
