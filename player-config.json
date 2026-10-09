@@ -29,7 +29,7 @@
     "size": 50,
     "bold": true,
     "italic": false,
-    "color": "#ffdd00",
+    "color": "#ff6251",
     "background_color": "rgba(255,255,255,0.17)",
     "speed": 18,
     "direction": "left",
